@@ -1,0 +1,63 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+        - name: Check installation
+          stat:
+              path: /opt/elastic
+          register: elastic_install
+
+        - name: install java
+          apt: 
+            name: openjdk-8-jdk 
+            state: present
+
+        - name: Gets tarball elasticsearch
+          get_url:
+            url="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.6.1.tar.gz"
+            dest="/home/bhanuchandra_sabbavarapu"
+          when: elastic_install.stat.exists == False
+
+        - name: Gets tarball kibana
+          get_url:
+            url="https://artifacts.elastic.co/downloads/kibana/kibana-6.6.1-linux-x86_64.tar.gz"
+            dest="/home/bhanuchandra_sabbavarapu"
+          when: elastic_install.stat.exists == False
+
+        - name: ensure elastic directory exists
+          file:
+            path: /opt/elastic
+            state: directory
+
+        - name:  extract elastic
+          unarchive:
+             src="/home/bhanuchandra_sabbavarapu/elasticsearch-6.6.1.tar.gz" 
+             dest="/opt/elastic"
+             copy=no
+          when: elastic_install.stat.exists == False
+
+        - name: extract kinaba
+          unarchive: 
+             src=/home/bhanuchandra_sabbavarapu/kibana-6.6.1-linux-x86_64.tar.gz 
+             dest=/opt/elastic/
+             copy=no
+          when: elastic_install.stat.exists == False
+
+        - name: movng file
+          command: mv /opt/elastic/elasticsearch-6.6.1  /opt/elastic/elasticsearch
+          args:
+            creates: /opt/elastic/elasticsearch
+
+        - name: moving 
+          command: mv /opt/elastic/kibana-6.6.1-linux-x86_64  /opt/elastic/kibana
+          args:
+            creates: /opt/elastic/kibana
+
+        - name: permission change
+          file: 
+            path: /opt/elastic
+            state: directory
+            recurse: yes
+            owner: bhanuchandra_sabbavarapu
+            group: bhanuchandra_sabbavarapu
