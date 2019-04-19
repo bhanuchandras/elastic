@@ -1,7 +1,7 @@
 resource "google_compute_instance" "elastic-server" {
   project      = "cloudjupyter-bhanu"
   name         = "elastic"
-  machine_type = "g1-small"
+  machine_type = "n1-standard-1"
   zone         = "asia-south1-a"
 
   boot_disk {
